@@ -5,78 +5,95 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Markdown Vonverter by CoryG</title>
 
-	<link rel="stylesheet" href="../cbl/_assets/_vendor/BS4/css/bootstrap.min.css">
-	<link rel="stylesheet" type="text/css" href="../cbl/_assets/css/w3.css">
-	<link rel="stylesheet" type="text/css" href="../cbl/_assets/css/fa-all.css">
-	<link rel="stylesheet" type="text/css" href="../cbl/_assets/css/coryG_base.css">
-	<link rel="stylesheet" type="text/css" href="../cbl/_assets/css/coryG_UIOps.css">
-	<link rel="stylesheet" type="text/css" href="../cbl/_assets/css/mediaoptima.css">
-	<link rel="stylesheet" type="text/css" href="../cbl/_assets/css/animate.css">
-	<link rel="stylesheet" type="text/css" href="../cbl/_assets/css/styles.css">
-	<link rel="stylesheet" type="text/css" href="../cbl/_assets/css/fonts.css">
+	<link rel="stylesheet" href="./cbl/_assets/_vendor/BS4/css/bootstrap.min.css">
+	<link rel="stylesheet" href="./cbl/_assets/css/fa-all.css">
+	<link rel="stylesheet" href="./cbl/_assets/css/w3.css">
+	<link rel="stylesheet" href="./cbl/_assets/css/coryG_UIOps.css">
+	<link rel="stylesheet" href="./cbl/_assets/css/coryG_base.css">
+	<link rel="stylesheet" href="./cbl/_assets/css/fonts.css">
+	<link rel="stylesheet" href="./cbl/_assets/css/animate.css">
+	<link rel="stylesheet" href="./cbl/_assets/css/mediaoptima.css">
+	<!-- <link rel="stylesheet" href="./_loc_assets/css/styles.css"> -->
 
-	<script src="../cbl/_assets/js/SuperScript.js"></script>
-	<script src="../cbl/_assets/js/toappend.js"></script>
-	<script src="../cbl/_assets/js/customalerter.js"></script>
-	<script src="../cbl/_assets/js/coryG_UIOps.js"></script>
-	<script src="../cbl/_assets/js/app.js"></script>
-	<script src="../cbl/_assets/js/jquery-3.6.0.min.js"></script>
-	<script src="../cbl/_assets/js/popper.min.js"></script>
-	<script src="../cbl/_assets/_vendor/BS4/js/bootstrap.bundle.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="./cbl/_assets/css/inter_slop.css">
+	<!-- <link rel="stylesheet" type="text/css" href="./cbl/_assets/css/kimi_slop.css"> -->
+
+	<script src="./cbl/_assets/_vendor/misc/jquery-3.6.0.min.js"></script>
+	<script src="./cbl/_assets/_vendor/misc/popper.min.js"></script>
+	<script src="./cbl/_assets/_vendor/misc/html2canvas.min.js"></script>
+	<script src="./cbl/_assets/_vendor/misc/jspdf.umd.min.js"></script>
+	<script src="./cbl/_assets/_vendor/misc/qrcode.min.js"></script>
+	<script src="./cbl/_assets/js/chart.js"></script>
+	<script src="./cbl/_assets/js/SuperScript.js"></script>
+	<script src="./cbl/_assets/js/toappend.js"></script>
+	<script src="./cbl/_assets/_vendor/BS4/js/bootstrap.bundle.min.js"></script>
+	<script src="./cbl/_assets/_vendor/misc/marked.min.js"></script>
+
+	<script src="./cbl/_assets/js/anims.js"></script>
+	<script src="./cbl/_assets/js/coryG_UIOps.js"></script>
+	<script src="./cbl/_assets/js/customalerter.js"></script>
+	<script src="./cbl/_assets/js/super_encryptor.js"></script>
+	<script src="./cbl/_assets/js/app.js"></script>
 
 	<!-- page specific resources -->
-	<link rel="stylesheet" type="text/css" href="css/_mystyles.css">
-	<link rel="stylesheet" type="text/css" href="css/water_markdown.css">
-	<script src="js/marked.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="./_local/css/_mystyles.css">
+	<link rel="stylesheet" type="text/css" href="./_local/css/water_markdown.css">
+	<script src="./_local/js/marked.min.js"></script>
 </head>
-<body class="flow_body">
+<body class="flow_body" data-mode="dark">
+	<div class="w3-bottom w3-display-bottomright" style="width: auto;">
+		<button class="btn circle_btn" data-myclass="btn circle_btn" data-runme="toggle_ui_mode" id="mode_indicator"><i class="fa fa-plus"></i></button>
+	</div>
 	<nav class="navbar flowline spread scrolled">
-		<div class="flowline gap-sm">
-			<div class="centroid">
-				<b class="themegrad spacy-tn themeround sq w3-text-black">Md</b>
+		<div class="inner">
+			<div class="flowline gap-sm">
+				<div class="centroid">
+					<b class="themegrad spacy-tn themeround sq w3-text-black">Md</b>
+				</div>
+				<br data-visibledata="1,0,0">
+				<div>
+					<span style="display: block;"><b>_HyperMark</b></span>
+					<small>markdown vonverter</small>
+				</div>
 			</div>
-			<br data-visibledata="1,0,0">
-			<div>
-				<span style="display: block;"><b>_HyperMark</b></span>
-				<small>markdown vonverter</small>
-			</div>
-		</div>
-		<div id="sitelinks"></div>
 
-		<div data-visibledata="0,1,1" id="app_options" class="navops drop-hover">
-			<button class="w3-red_">options <i class="fa fa-caret-down"></i></button>
-			<div class="dropguy w3-animate-opacity">
-				<button data-runme="downloadHTML">
-					<i class="fa fa-download"></i>
-					Download HTML
-				</button>
-				<button data-runme="downloadText">
-					<i class="fa fa-file-alt"></i>
-					Download Text
-				</button>
-				<button data-runme="downloadMd">
-					<i class="fa fa-file-alt"></i>
-					Download .Md
-				</button>
-				<button data-runme="saveToStorage">
-					<i class="fa fa-save"></i>
-					Save
-				</button>
-				<button data-runme="checksaved">
-					<i class="fa fa-folder-open"></i>
-					Saved documents
-				</button>
-			</div>
-		</div>
+			<div id="sitelinks"></div>
 
-		<div data-visibledata="1,0,0">
-			<div class="dropdown">
-				<button class="toolbtn" id="userOpsDropper" data-toggle="dropdown" aria-haspopup="true"
-						aria-expanded="false">
-					<span class="">Options</span>
-					<i class="fa fa-caret-down"></i>
-				</button>
-				<div class="dropdown-menu dropdown-menu-left realign w3-animate-opacity dropmenu" style="margin-top: 12px;border: none;" data-copyme="#app_options">
+			<div data-visibledata="0,1,1" id="app_options" class="navops drop-hover w3-hide">
+				<button class="w3-red_">options <i class="fa fa-caret-down"></i></button>
+				<div class="dropguy w3-animate-opacity panelbg">
+					<button class="dropdown-item" data-runme="downloadHTML">
+						<i class="fa fa-download"></i>
+						Download HTML
+					</button>
+					<button class="dropdown-item" data-runme="downloadText">
+						<i class="fa fa-file-alt"></i>
+						Download Text
+					</button>
+					<button class="dropdown-item" data-runme="downloadMd">
+						<i class="fa fa-file-alt"></i>
+						Download .Md
+					</button>
+					<button class="dropdown-item" data-runme="saveToStorage">
+						<i class="fa fa-save"></i>
+						Save
+					</button>
+					<button class="dropdown-item" data-runme="checksaved">
+						<i class="fa fa-folder-open"></i>
+						Saved documents
+					</button>
+				</div>
+			</div>
+
+			<div data-visibledata="1,1,1">
+				<div class="dropdown">
+					<button class="toolbtn" id="userOpsDropper" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<span class="">Options</span>
+						<i class="fa fa-caret-down"></i>
+					</button>
+					<div class="dropdown-menu dropdown-menu-right slide-down dropmenu panelbg" style="margin-top: 12px;border: none;" data-copyme="#app_options>.dropguy">
+						this is dropped
+					</div>
 				</div>
 			</div>
 		</div>
@@ -86,7 +103,7 @@
 		<div class="pagepart w3-animate-opacity inputarea">
 			<textarea placeholder="enter markdown here" id="input"></textarea>
 		</div>
-		<div id="divider" data-visibledata="0,0,1"></div>
+		<div id="divider" data-visibledata="0,1,1"></div>
 		<div class="pagepart w3-animate-opacity outputarea" data-visibledata="0,1,1">
 			<div id="output" class="spacy-sm in_fullwidth markdown-body" data-theme="solar_">
 				processed html is shown here
@@ -105,7 +122,7 @@
 		</div>
 	</div>
 
-	<div>
+	<div class="w3-hide">
 		<div class="mdl" id="promptModal" data-shown="0">
 			<div class="modal-content slide-up">
 				<h4 id="promptTitle">Set Balance</h4>
@@ -126,6 +143,7 @@
 		pref_key = 'cdt_mdvonverter';
 
 		let pref_saved = `${pref_key}_savedstuff`;
+		let renderpost_inter = undefined;
 
 		window['dontlog'] = true;
 
@@ -139,6 +157,31 @@
 
 			outht = marked.parse(outxt);
 			output.innerHTML = outht;
+
+			clearTimeout(renderpost_inter);
+
+			renderpost_inter = setTimeout(() => {
+				postprocess();
+			},1200);
+		}
+
+		const postprocess = () => {
+			// let item = output;
+
+			// postprocess for code tags
+			let codes = output.querySelectorAll('pre>code');
+			codes.forEach((c,n) => {
+				c.id = "code_" + n;
+
+				let pr = c.parentElement;
+				let pd = mekDiv(c.className.replaceAll('language-',''),'code_label');
+				let btnht = mekButton({caption: 'copy code',btype: 'outline',icon: 'fa-copy',_class: 'sm slide-up',_props: `data-copythis="#${c.id}"`});
+				let conht = mekDiv(pd + btnht, 'spacy-tn w3-display-bottomright w3-bottom flowline spread panelbg modetxt');
+
+				pr.innerHTML = pr.innerHTML + conht;
+			});
+
+			refreshUI(300);
 		}
 
 		window['switchmytab'] = (el) => {

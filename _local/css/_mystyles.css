@@ -5,7 +5,7 @@
 		align-items: center;
 		justify-content: flex-start;
 
-		font-family: 'terminal dosis' !important;
+		/*font-family: 'terminal dosis' !important;*/
 	}
 	.upbtn{
 		pointer-events: none;
@@ -15,6 +15,14 @@
 /* navbar styles */
 	.navbar{
 		border-bottom: 1px solid #333;
+		width: 100%;
+	}
+	.navbar .inner{
+		margin: 0px auto;
+		width: 100%;
+		max-width: 1024px;
+		display: flex;
+		justify-content: space-between;
 	}
 	.navbar .navops{
 		display: flex;
@@ -42,15 +50,23 @@
 	}
 	.dropmenu button{
 		background: transparent;
-		color: var(--text);
+		color: var(--clr-text);
 		width: 100%;
 		text-align: left;
-		padding: 10px 8px;
+		padding: 8px 12px;
 		border: 1px solid transparent;
+		display: inline-flex;
+		justify-content: flex-start;
+		align-items: center;
+		gap: 6px;
 	}
 	.dropmenu button:hover{
-		background: #fff;
-		color: #222;
+		background: var(--clr-text);
+		color: var(--clr-alttext);
+	}
+
+	.dropdown .dropdown-item{
+		background: var(--clr-panelbg);
 	}
 
 /* new buttons */
@@ -59,7 +75,7 @@
 		color: #eaeaea;
 		border: none;
 		padding: 8px 16px;
-		border-radius: 6px;
+		border-radius: var(--roundness);
 		cursor: pointer;
 		font-size: 14px;
 		display: flex;
@@ -83,10 +99,11 @@
 	.writeArea .pagepart{
 		overflow-y: hidden;
 		display: flex;
-		/*flex: 1 0 480px;*/
 		flex: 1;
+		/*flex: 1 0 480px;*/
 		/*border: 1px solid red;*/
 		width: 100%;
+		background: var(--clr-panelbg);
 	}
 
 	.pagepart textarea{
@@ -94,7 +111,7 @@
 		background: transparent;
 		/*border: 1px solid var(--clr-border);*/
 		border: none;
-		color: #fff;
+		color: var(--clr-text);
 		width: 100%;
 		resize: none;
 		padding: 12px;
@@ -110,6 +127,7 @@
 	.pagepart.outputarea #output{
 		overflow-y: auto;
 		background: var(--clr-reallydark);
+		color: var(--clr-text);
 		/*max-width: 420px;*/
 		width: 100%;
 		height: 100%;
@@ -117,8 +135,9 @@
 	}
 
 	.writeArea #divider{
-		width: 7px;
-		flex: 0 1 4px;
+		--s: 2px;
+		width: var(--s);
+		flex: 0 1 var(--s);
 		background: var(--clr-border);
 	}
 
@@ -153,4 +172,52 @@
 	.mobile-tabs .tabbtn.active{
 		color: var(--themecolor);
 		border-bottom: 2px solid;
+	}
+
+/* output mods */
+	#output li{
+		list-style-type: bullets;
+	}
+	.pagepart.outputarea #output pre{
+		--max: 400px;
+		max-height: var(--max);
+		overflow: hidden;
+		position: relative;
+		padding: 12px 12px 50px 12px;
+	}
+	.pagepart.outputarea #output pre button{
+		/*display: none;*/
+		opacity: 0;
+	}
+	.pagepart.outputarea #output pre:hover button{
+		/*display: unset;*/
+		opacity: 1;
+	}
+	.pagepart.outputarea #output pre code{
+		display: inline-block;
+		max-height: var(--max);
+		max-width: 100%;
+		overflow: auto;
+		margin-bottom: 40px !important;
+	}
+	.pagepart.outputarea #output pre code::before {
+		/*content: attr(class);*/
+		color: #fff;
+		background: var(--theme-glass);
+		position: sticky;
+		top: 0;
+		right: 0;
+		padding: 3px 8px;
+		border-radius: 0 0 0 var(
+			--roundness);
+	}
+	.pagepart .code_label {
+		font-family: monospace;
+		color: var(--seccolor);
+		border: 1px solid currentColor;
+		font-size: 0.7rem;
+		padding: 2px 4px;
+		display: inline-flex;
+		justify-content: center;
+		align-items: center;
 	}
