@@ -1,0 +1,590 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Markdown → HTML (Realtime)</title>
+	<link rel="stylesheet" href="../../cbl/_assets/css/fa-all.css"/>
+	<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.8.1/github-markdown.min.css"> -->
+	<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"> -->
+	<link rel="stylesheet" href="../css/water_markdown.css">
+	
+	<style>
+		* {
+			box-sizing: border-box;
+			transition: 0.3s ease-out;
+		}
+		body {
+			margin: 0;
+			font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+			height: 100vh;
+			display: flex;
+			flex-direction: column;
+			background: #0f1115;
+			color: #eaeaea;
+		}
+
+		h1{
+			
+		}
+
+		.toolbar {
+			background: #1a1d29;
+			padding: 12px 20px;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			gap: 10px;
+			align-items: center;
+			border-bottom: 1px solid #2a2d39;
+		}
+
+		.toolbar button {
+			background: #2a2d39;
+			color: #eaeaea;
+			border: none;
+			padding: 8px 16px;
+			border-radius: 6px;
+			cursor: pointer;
+			font-size: 14px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.toolbar button:hover {
+			background: #363949;
+		}
+
+		.main-container {
+			display: flex;
+			flex: 1;
+			overflow: hidden;
+			position: relative;
+		}
+
+		.editor-container {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			overflow: hidden;
+		}
+
+		textarea {
+			width: 100%;
+			height: 100%;
+			padding: 20px;
+			border: none;
+			outline: none;
+			resize: none;
+			background: #141821;
+			color: #fff;
+			font-size: 16px;
+			font-family: monospace;
+		}
+
+		.resizer {
+			width: 4px;
+			background: #2a2d39;
+			cursor: col-resize;
+			position: relative;
+			flex-shrink: 0;
+		}
+
+		.resizer:hover {
+			background: #6ea8fe;
+		}
+
+		.resizer::after {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: -3px;
+			right: -3px;
+			bottom: 0;
+		}
+
+		.preview-container {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			overflow: hidden;
+		}
+
+		.preview {
+			width: 100%;
+			height: 100%;
+			padding: 20px;
+			overflow-y: auto;
+			background: #0f1115;
+		}
+
+		.mobile-tabs {
+			display: none;
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			width: 100%;
+			/*background: #1a1d29;*/
+			/*border-bottom: 1px solid #2a2d39;*/
+			padding: 24px;
+		}
+		.mobile-tabs>div{
+			background: #131313;
+			border-radius: 12px;
+			display: flex;
+			flex-direction: row;
+			justify-content: space-around;
+			align-items: center;
+			width: 100%;
+			/*background: red;*/
+		}
+		.mobile-tabs button {
+			background: none;
+			border: none;
+			color: #888;
+			padding: 24px;
+			font-size: 14px;
+			cursor: pointer;
+			border-bottom: 2px solid transparent;
+		}
+
+		.mobile-tabs button.active {
+			color: #6ea8fe;
+			border-bottom-color: #6ea8fe;
+		}
+
+		@media (max-width: 768px) {
+			.resizer {
+				display: none;
+			}
+
+			.mobile-tabs {
+				display: flex;
+			}
+
+			.editor-container,
+			.preview-container {
+				display: none;
+			}
+
+			.editor-container.active,
+			.preview-container.active {
+				display: flex;
+				width: 100%;
+			}
+		}
+
+		.modal {
+			display: none;
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.8);
+			z-index: 1000;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.modal.active {
+			display: flex;
+		}
+
+		.modal-content {
+			background: #1a1d29;
+			border-radius: 12px;
+			padding: 24px;
+			max-width: 600px;
+			width: 90%;
+			max-height: 80vh;
+			overflow-y: auto;
+		}
+
+		.modal-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 20px;
+		}
+
+		.modal-header h2 {
+			margin: 0;
+			font-size: 24px;
+		}
+
+		.modal-close {
+			background: none;
+			border: none;
+			color: #eaeaea;
+			font-size: 24px;
+			cursor: pointer;
+			padding: 0;
+			width: 32px;
+			height: 32px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.saved-items {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+		}
+
+		.saved-card {
+			background: #2a2d39;
+			padding: 16px;
+			border-radius: 8px;
+			display: flex;
+			justify-content: space-between;
+			align-items: start;
+		}
+
+		.saved-card-content {
+			flex: 1;
+			cursor: pointer;
+		}
+
+		.saved-card-title {
+			font-weight: bold;
+			margin-bottom: 4px;
+			color: #6ea8fe;
+		}
+
+		.saved-card-summary {
+			font-size: 14px;
+			color: #bbb;
+		}
+
+		.saved-card-date {
+			font-size: 12px;
+			color: #888;
+			margin-top: 4px;
+		}
+
+		.saved-card-actions {
+			display: flex;
+			gap: 8px;
+		}
+
+		.icon-btn {
+			background: none;
+			border: none;
+			color: #eaeaea;
+			cursor: pointer;
+			padding: 4px 8px;
+			font-size: 16px;
+		}
+
+		.icon-btn:hover {
+			color: #6ea8fe;
+		}
+
+		.icon-btn.delete:hover {
+			color: #ff6b6b;
+		}
+
+		.delete-all-btn {
+			background: #ff6b6b;
+			color: white;
+			border: none;
+			padding: 10px 16px;
+			border-radius: 6px;
+			cursor: pointer;
+			margin-top: 12px;
+			width: 100%;
+		}
+
+		.delete-all-btn:hover {
+			background: #ff5252;
+		}
+
+		.empty-state {
+			text-align: center;
+			padding: 40px;
+			color: #888;
+		}
+	</style>
+</head>
+<body>
+	
+	<div class="toolbar">
+		<button onclick="downloadHTML()">
+			<i class="fas fa-download"></i>
+			Download HTML
+		</button>
+		<button onclick="downloadText()">
+			<i class="fas fa-file-alt"></i>
+			Download Text
+		</button>
+		<button onclick="saveToStorage()">
+			<i class="fas fa-save"></i>
+			Save
+		</button>
+		<button onclick="openModal()">
+			<i class="fas fa-folder-open"></i>
+			Keep Editing
+		</button>
+	</div>
+
+	<div class="main-container">
+		<div class="mobile-tabs">
+			<div>
+				<button class="active" onclick="switchTab('editor')">
+					<i class="fas fa-edit"></i> Editor
+				</button>
+				<button onclick="switchTab('preview')">
+					<i class="fas fa-eye"></i> Preview
+				</button>
+			</div>
+		</div>
+
+		<div class="editor-container active" style="transition: none;">
+			<textarea id="md"></textarea>
+		</div>
+		
+		<div class="resizer" id="resizer"></div>
+
+		<div class="preview-container" style="transition: none;">
+			<div class="preview markdown-body" id="html"></div>
+		</div>
+	</div>
+
+	<div class="modal" id="modal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2>Saved Documents</h2>
+				<button class="modal-close" onclick="closeModal()">
+					<i class="fas fa-times"></i>
+				</button>
+			</div>
+			<div id="saved-items-container"></div>
+		</div>
+	</div>
+
+	<script src="../js/marked.min.js"></script>
+	<script>
+		const md = document.getElementById('md');
+		const html = document.getElementById('html');
+		const modal = document.getElementById('modal');
+		const resizer = document.getElementById('resizer');
+		const editorContainer = document.querySelector('.editor-container');
+		const previewContainer = document.querySelector('.preview-container');
+
+		md.placeholder = `# Type markdown here…
+
+- Realtime
+- No build tools
+- Single file`;
+
+		const render = () => {
+			html.innerHTML = marked.parse(md.value || '');
+		};
+
+		md.addEventListener('input', render);
+		render();
+
+		// Resizer functionality
+		let isResizing = false;
+
+		resizer.addEventListener('mousedown', (e) => {
+			isResizing = true;
+			document.body.style.cursor = 'col-resize';
+			document.body.style.userSelect = 'none';
+		});
+
+		document.addEventListener('mousemove', (e) => {
+			if (!isResizing) return;
+
+			const containerRect = document.querySelector('.main-container').getBoundingClientRect();
+			const offsetX = e.clientX - containerRect.left;
+			const percentage = (offsetX / containerRect.width) * 100;
+
+			if (percentage > 20 && percentage < 80) {
+				editorContainer.style.flex = `0 0 ${percentage}%`;
+				previewContainer.style.flex = `0 0 ${100 - percentage}%`;
+			}
+		});
+
+		document.addEventListener('mouseup', () => {
+			if (isResizing) {
+				isResizing = false;
+				document.body.style.cursor = '';
+				document.body.style.userSelect = '';
+			}
+		});
+
+		// Mobile tabs functionality
+		function switchTab(tab) {
+			const tabs = document.querySelectorAll('.mobile-tabs button');
+			tabs.forEach(t => t.classList.remove('active'));
+			
+			if (tab === 'editor') {
+				tabs[0].classList.add('active');
+				editorContainer.classList.add('active');
+				previewContainer.classList.remove('active');
+			} else {
+				tabs[1].classList.add('active');
+				editorContainer.classList.remove('active');
+				previewContainer.classList.add('active');
+				render(); // Re-render when switching to preview
+			}
+		}
+
+		function downloadHTML() {
+			const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Markdown Document</title>
+	<style>
+		body {
+			font-family: system-ui, -apple-system, sans-serif;
+			max-width: 800px;
+			margin: 40px auto;
+			padding: 20px;
+			line-height: 1.6;
+		}
+		code {
+			background: #f4f4f4;
+			padding: 2px 6px;
+			border-radius: 4px;
+		}
+		pre {
+			background: #f4f4f4;
+			padding: 12px;
+			overflow-x: auto;
+			border-radius: 6px;
+		}
+		blockquote {
+			border-left: 4px solid #ccc;
+			padding-left: 12px;
+			color: #666;
+		}
+	</style>
+</head>
+<body>
+${html.innerHTML}
+</body>
+</html>`;
+			
+			const blob = new Blob([htmlContent], { type: 'text/html' });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = 'document.html';
+			a.click();
+			URL.revokeObjectURL(url);
+		}
+
+		function downloadText() {
+			const blob = new Blob([md.value], { type: 'text/plain' });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = 'document.md';
+			a.click();
+			URL.revokeObjectURL(url);
+		}
+
+		function saveToStorage() {
+			const title = prompt('Enter a title for this document:');
+			if (!title) return;
+
+			const saves = JSON.parse(localStorage.getItem('markdown_app_saves') || '[]');
+			
+			saves.push({
+				title: title,
+				contents: md.value,
+				date_added: new Date().toISOString()
+			});
+
+			localStorage.setItem('markdown_app_saves', JSON.stringify(saves));
+			alert('Document saved successfully!');
+		}
+
+		function openModal() {
+			modal.classList.add('active');
+			renderSavedItems();
+		}
+
+		function closeModal() {
+			modal.classList.remove('active');
+		}
+
+		function renderSavedItems() {
+			const container = document.getElementById('saved-items-container');
+			const saves = JSON.parse(localStorage.getItem('markdown_app_saves') || '[]');
+
+			if (saves.length === 0) {
+				container.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open" style="font-size: 48px; margin-bottom: 16px;"></i><p>No saved documents yet</p></div>';
+				return;
+			}
+
+			let html = '<div class="saved-items">';
+			
+			saves.forEach((save, index) => {
+				const summary = save.contents.substring(0, 50) + (save.contents.length > 50 ? '...' : '');
+				const date = new Date(save.date_added).toLocaleDateString();
+				
+				html += `
+					<div class="saved-card">
+						<div class="saved-card-content" onclick="loadSave(${index})">
+							<div class="saved-card-title">${save.title}</div>
+							<div class="saved-card-summary">${summary}</div>
+							<div class="saved-card-date">${date}</div>
+						</div>
+						<div class="saved-card-actions">
+							<button class="icon-btn delete" onclick="deleteSave(${index})">
+								<i class="fas fa-trash"></i>
+							</button>
+						</div>
+					</div>
+				`;
+			});
+
+			html += '</div>';
+			html += '<button class="delete-all-btn" onclick="deleteAllSaves()"><i class="fas fa-trash-alt"></i> Delete All</button>';
+			
+			container.innerHTML = html;
+		}
+
+		function loadSave(index) {
+			const saves = JSON.parse(localStorage.getItem('markdown_app_saves') || '[]');
+			if (saves[index]) {
+				md.value = saves[index].contents;
+				render();
+				closeModal();
+			}
+		}
+
+		function deleteSave(index) {
+			if (!confirm('Are you sure you want to delete this document?')) return;
+			
+			const saves = JSON.parse(localStorage.getItem('markdown_app_saves') || '[]');
+			saves.splice(index, 1);
+			localStorage.setItem('markdown_app_saves', JSON.stringify(saves));
+			renderSavedItems();
+		}
+
+		function deleteAllSaves() {
+			if (!confirm('Are you sure you want to delete ALL saved documents? This cannot be undone.')) return;
+			
+			localStorage.setItem('markdown_app_saves', '[]');
+			renderSavedItems();
+		}
+
+		// Close modal when clicking outside
+		modal.addEventListener('click', (e) => {
+			if (e.target === modal) {
+				closeModal();
+			}
+		});
+	</script>
+</body>
+</html>

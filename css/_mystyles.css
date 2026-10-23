@@ -1,0 +1,156 @@
+/* body restyle */
+	.flow_body{
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-start;
+
+		font-family: 'terminal dosis' !important;
+	}
+	.upbtn{
+		pointer-events: none;
+		opacity: 0;
+	}
+
+/* navbar styles */
+	.navbar{
+		border-bottom: 1px solid #333;
+	}
+	.navbar .navops{
+		display: flex;
+		gap: 12px;
+	}
+	.navbar .navops button{
+		background: #2a2d39;
+		color: #eaeaea;
+		border: none;
+		padding: 8px 16px;
+		border-radius: 6px;
+		cursor: pointer;
+		font-size: 14px;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.dropmenu{
+		background: var(--clr-panelbg);
+		color: var(--clr-text);
+		overflow: hidden;
+		border-radius: var(--roundness);
+		padding: 0 !important;
+	}
+	.dropmenu button{
+		background: transparent;
+		color: var(--text);
+		width: 100%;
+		text-align: left;
+		padding: 10px 8px;
+		border: 1px solid transparent;
+	}
+	.dropmenu button:hover{
+		background: #fff;
+		color: #222;
+	}
+
+/* new buttons */
+	.toolbtn{
+		background: #2a2d39;
+		color: #eaeaea;
+		border: none;
+		padding: 8px 16px;
+		border-radius: 6px;
+		cursor: pointer;
+		font-size: 14px;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+/* writearea styles */
+	.writeArea{
+		display: flex;
+		justify-content: stretch;
+		align-items: stretch;
+		width: 100vw;
+		height: 100%;
+		max-height: 97vh;
+		overflow: hidden;
+		/*border: 1px solid var(--clr-border);*/
+		flex: 1;
+		/*flex-wrap: wrap;*/
+	}
+	.writeArea .pagepart{
+		overflow-y: hidden;
+		display: flex;
+		/*flex: 1 0 480px;*/
+		flex: 1;
+		/*border: 1px solid red;*/
+		width: 100%;
+	}
+
+	.pagepart textarea{
+		overflow-y: auto;
+		background: transparent;
+		/*border: 1px solid var(--clr-border);*/
+		border: none;
+		color: #fff;
+		width: 100%;
+		resize: none;
+		padding: 12px;
+		border-bottom: 1px solid var(--clr-border);
+	}
+	.pagepart textarea:focus{
+		outline: none;
+	}
+	.pagepart.outputarea{
+		/*max-width: 420px;*/
+		overflow: hidden;
+	}
+	.pagepart.outputarea #output{
+		overflow-y: auto;
+		background: var(--clr-reallydark);
+		/*max-width: 420px;*/
+		width: 100%;
+		height: 100%;
+		margin: 0 !important;
+	}
+
+	.writeArea #divider{
+		width: 7px;
+		flex: 0 1 4px;
+		background: var(--clr-border);
+	}
+
+/* mobile tabs */
+	.mobile-tabs{
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		position: fixed;
+		bottom: 20px;
+		width: 100%;
+	}
+	.mobile-tabs .tabs{
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		width: min(300px, 90vw);
+		padding: 8px 8px 0 8px;
+		background: var(--clr-panelbg);
+		border-radius: var(--roundness);
+		gap: 12px;
+	}
+	.mobile-tabs .tabbtn{
+		background: transparent;
+		border: 1px solid transparent;
+		color: #fff;
+		font-weight: 700;
+		font-size: 1.2rem;
+		flex: 1;
+	}
+	.mobile-tabs .tabbtn.active{
+		color: var(--themecolor);
+		border-bottom: 2px solid;
+	}

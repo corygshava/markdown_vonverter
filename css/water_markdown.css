@@ -1,0 +1,205 @@
+/*  1.  CORE VARIABLES  ––––––––––––––––––––––––– */
+:root,
+[data-theme="light"] {
+  --md-bg-body: #ffffff;
+  --md-bg: #f5f5f5;
+  --md-bg-alt: #fafafa;
+  --md-text: #222;
+  --md-text-bright: #000;
+  --md-text-muted: #667;
+  --md-link: #0066cc;
+  --md-accent: #0076d1;
+  --md-border: #ddd;
+  --md-code: #d73a49;
+  --md-highlight: #ff0;
+  --md-radius: 6px;
+  --md-font: 'terminal dosis',system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --md-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --md-bg-body: #0d1117;
+    --md-bg: #161b22;
+    --md-bg-alt: #1a222c;
+    --md-text: #e6edf3;
+    --md-text-bright: #fff;
+    --md-text-muted: #8b949e;
+    --md-link: #58a6ff;
+    --md-accent: #1f6feb;
+    --md-border: #30363d;
+    --md-code: #ff7b72;
+    --md-highlight: #efdb43;
+  }
+}
+
+[data-theme="dark"] {
+  --md-bg-body: #0d1117;
+  --md-bg: #161b22;
+  --md-bg-alt: #1a222c;
+  --md-text: #e6edf3;
+  --md-text-bright: #fff;
+  --md-text-muted: #8b949e;
+  --md-link: #58a6ff;
+  --md-accent: #1f6feb;
+  --md-border: #30363d;
+  --md-code: #ff7b72;
+  --md-highlight: #efdb43;
+}
+
+/*  2.  TYPOGRAPHY  ––––––––––––––––––––––––––––– */
+.markdown-body {
+  font-family: var(--md-font);
+  line-height: 1.65;
+  color: var(--md-text);
+  background: var(--md-bg-body);
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: var(--md-radius);
+  word-wrap: break-word;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin: 1.2rem 0 .3em 0;
+  font-weight: 600;
+  color: var(--md-text-bright);
+}
+
+.markdown-body h1 { font-size: 2.2em; }
+.markdown-body h2 { font-size: 1.8em; }
+.markdown-body h3 { font-size: 1.5em; }
+.markdown-body h4 { font-size: 1.25em; }
+.markdown-body h5 { font-size: 1.1em; }
+.markdown-body h6 { font-size: 1em; }
+
+.markdown-body p,
+.markdown-body blockquote,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body dl,
+.markdown-body table,
+.markdown-body pre {
+  margin: 0 0 1em;
+}
+
+.markdown-body blockquote {
+  padding-left: 1em;
+  border-left: 4px solid var(--md-accent);
+  color: var(--md-text-muted);
+  font-style: italic;
+}
+
+.markdown-body a {
+  color: var(--md-link);
+  text-decoration: none;
+}
+.markdown-body a:hover { text-decoration: underline; }
+
+/*  3.  CODE  ––––––––––––––––––––––––––––––––––– */
+.markdown-body code,
+.markdown-body kbd,
+.markdown-body samp {
+  font-family: var(--md-mono);
+  font-size: .9em;
+  background: var(--md-bg);
+  color: var(--md-code);
+  padding: .2em .4em;
+  border-radius: 3px;
+}
+
+.markdown-body pre {
+  background: var(--md-bg);
+  padding: 1em;
+  border-radius: var(--md-radius);
+  overflow-x: auto;
+}
+.markdown-body pre code {
+  background: none;
+  /*color: inherit;*/
+  padding: 0;
+}
+
+/*  4.  TABLES  ––––––––––––––––––––––––––––––––– */
+.markdown-body table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.markdown-body th,
+.markdown-body td {
+  padding: .6em 1em;
+  border: 1px solid var(--md-border);
+}
+.markdown-body th {
+  background: var(--md-bg-alt);
+  font-weight: 600;
+}
+
+/*  5.  LISTS & MISC  –––––––––––––––––––––––––––– */
+.markdown-body ul,
+.markdown-body ol { padding-left: 2em; }
+.markdown-body hr {
+  border: none;
+  border-top: 1px solid var(--md-border);
+  margin: 2em 0;
+}
+.markdown-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--md-radius);
+}
+.markdown-body mark {
+  background: var(--md-highlight);
+  color: var(--md-text-bright);
+  padding: 0 2px;
+}
+
+/*  6.  SCROLLBARS (webkit)  ––––––––––––––––––––– */
+.markdown-body::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.markdown-body::-webkit-scrollbar-track {
+  background: var(--md-bg);
+}
+.markdown-body::-webkit-scrollbar-thumb {
+  background: var(--md-text-muted);
+  border-radius: 5px;
+}
+.markdown-body::-webkit-scrollbar-thumb:hover {
+  background: var(--md-accent);
+}
+
+/*  7.  ADD YOUR OWN THEMES BELOW  ––––––––––––––– */
+[data-theme="solar"] {
+  --md-bg-body: #fdf6e3;
+  --md-bg: #eee8d5;
+  --md-bg-alt: #f7f1e8;
+  --md-text: #657b83;
+  --md-text-bright: #073642;
+  --md-text-muted: #586e75;
+  --md-link: #268bd2;
+  --md-accent: #d33682;
+  --md-border: #93a1a1;
+  --md-code: #dc322f;
+  --md-highlight: #b58900;
+}
+
+[data-theme="pink"] {
+  --md-bg-body: #fff0f5;
+  --md-bg: #ffe4e1;
+  --md-bg-alt: #fff5f7;
+  --md-text: #4d0016;
+  --md-text-bright: #330011;
+  --md-text-muted: #8c5460;
+  --md-link: #e91e63;
+  --md-accent: #ad1457;
+  --md-border: #f7c5d1;
+  --md-code: #c2185b;
+  --md-highlight: #f48fb1;
+}
