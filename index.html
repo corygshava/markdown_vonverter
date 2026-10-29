@@ -39,11 +39,18 @@
 	<link rel="stylesheet" type="text/css" href="./_local/css/_mystyles.css">
 	<link rel="stylesheet" type="text/css" href="./_local/css/water_markdown.css">
 	<script src="./_local/js/marked.min.js"></script>
+
+	<style>
+		.project-chip{
+			position: relative;
+		}
+	</style>
 </head>
 <body class="flow_body" data-mode="dark">
-	<div class="w3-bottom w3-display-bottomright" style="width: auto;">
+	<div class="w3-bottom w3-display-bottomright spacy-sm" style="width: auto;">
 		<button class="btn circle_btn" data-myclass="btn circle_btn" data-runme="toggle_ui_mode" id="mode_indicator"><i class="fa fa-plus"></i></button>
 	</div>
+
 	<nav class="navbar flowline spread scrolled">
 		<div class="inner">
 			<div class="flowline gap-sm">
@@ -57,11 +64,24 @@
 				</div>
 			</div>
 
-			<div id="sitelinks"></div>
+			<div id="sitelinks" class="w3-hide"></div>
+
+			<div data-visibledata="0,1,1">
+				<div class="dropdown">
+					<div class="project-chip panelbg2_ themeround border_" data-target="d_menu" data-role="project-card" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<div data-subrole="inner" class="px-2 pr-5 py-2 w3-center">
+							<div>
+								<i class="text-muted">no project selected</i>
+							</div>
+						</div>
+						<!-- <div class="w3-display-right spacy-tn"><i class="fa fa-caret-down"></i></div> -->
+					</div>
+				</div>
+			</div>
 
 			<div data-visibledata="0,1,1" id="app_options" class="navops drop-hover w3-hide">
 				<button class="w3-red_">options <i class="fa fa-caret-down"></i></button>
-				<div class="dropguy w3-animate-opacity panelbg">
+				<div>
 					<button class="dropdown-item" data-runme="downloadHTML">
 						<i class="fa fa-download"></i>
 						Download HTML
@@ -74,25 +94,39 @@
 						<i class="fa fa-file-alt"></i>
 						Download .Md
 					</button>
-					<button class="dropdown-item" data-runme="saveToStorage">
+				</div>
+				<div class="dropguy w3-animate-opacity panelbg">
+					<button class="dropdown-item" data-runme="start_over">
+						<i class="fa fa-file"></i>
+						start over
+					</button>
+					<button class="dropdown-item" data-runme="downloadMd">
+						<i class="fa fa-download"></i>
+						export
+					</button>
+					<button class="dropdown-item" data-runme="saveCurrentWirk">
 						<i class="fa fa-save"></i>
 						Save
 					</button>
-					<button class="dropdown-item" data-runme="checksaved">
+					<button class="dropdown-item" data-runme="view_saved">
 						<i class="fa fa-folder-open"></i>
 						Saved documents
 					</button>
 				</div>
 			</div>
 
+			<!-- <div data-visibledata="1,0,0"> -->
 			<div data-visibledata="1,1,1">
-				<div class="dropdown">
-					<button class="toolbtn" id="userOpsDropper" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<div class="dropdown" id="d_menu">
+					<button class="toolbtn" id="userOpsDropper" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-visibledata_="0,1,1">
 						<span class="">Options</span>
 						<i class="fa fa-caret-down"></i>
 					</button>
-					<div class="dropdown-menu dropdown-menu-right slide-down dropmenu panelbg" style="margin-top: 12px;border: none;" data-copyme="#app_options>.dropguy">
-						this is dropped
+					<div class="dropdown-menu dropdown-menu-right slide-down dropmenu panelbg" style="margin-top: 12px;border: none;">
+						<div class="spacy-sm border-bottom" data-role="project-card">
+							this is dropped
+						</div>
+						<div data-copyme="#app_options>.dropguy"></div>
 					</div>
 				</div>
 			</div>
@@ -100,11 +134,11 @@
 	</nav>
 
 	<div class="writeArea">
-		<div class="pagepart w3-animate-opacity inputarea">
+		<div class="pagepart slide-up inputarea panelbg2">
 			<textarea placeholder="enter markdown here" id="input"></textarea>
 		</div>
 		<div id="divider" data-visibledata="0,1,1"></div>
-		<div class="pagepart w3-animate-opacity outputarea" data-visibledata="0,1,1">
+		<div class="pagepart slide-up outputarea" data-visibledata="0,1,1">
 			<div id="output" class="spacy-sm in_fullwidth markdown-body" data-theme="solar_">
 				processed html is shown here
 			</div>
@@ -122,20 +156,8 @@
 		</div>
 	</div>
 
-	<div class="w3-hide">
-		<div class="mdl" id="promptModal" data-shown="0">
-			<div class="modal-content slide-up">
-				<h4 id="promptTitle">Set Balance</h4>
-				<input id="promptInput" type="text" step="0.01" placeholder="0.00">
-				<div class="modal-actions">
-					<button class="except mybtn themeround primary" data-runme="promptModalCallback">Save</button>
-					<button class="except mybtn themeround outline-primary" data-toggler="#promptModal">Cancel</button>
-				</div>
-			</div>
-		</div>
-	</div>
-
 	<script>
+		app_prefix = 'hypermark_reloaded_'
 		let cur_item = {};
 		let is_saved = false;
 		let savedStuff = [];
@@ -144,6 +166,9 @@
 
 		let pref_saved = `${pref_key}_savedstuff`;
 		let renderpost_inter = undefined;
+		let autosave_inter = undefined;
+		let autosave_enabled = true;
+		let autosave_intervals = 12000;
 
 		window['dontlog'] = true;
 
@@ -151,69 +176,117 @@
 			renderStuff();
 		})
 
-		const renderStuff = () => {
-			let outxt = input.value;
-			let outht = ``;
+		// text processing and UI ops
+			const renderStuff = () => {
+				let outxt = input.value;
+				let outht = ``;
 
-			outht = marked.parse(outxt);
-			output.innerHTML = outht;
+				outht = marked.parse(outxt);
+				output.innerHTML = outht;
 
-			clearTimeout(renderpost_inter);
+				clearTimeout(renderpost_inter);
 
-			renderpost_inter = setTimeout(() => {
-				postprocess();
-			},1200);
-		}
+				renderpost_inter = setTimeout(() => {
+					postprocess();
+				},1200);
+			}
+			const postprocess = () => {
+				// let item = output;
 
-		const postprocess = () => {
-			// let item = output;
+				// postprocess for code tags
+				let codes = output.querySelectorAll('pre>code');
+				codes.forEach((c,n) => {
+					c.id = "code_" + n;
 
-			// postprocess for code tags
-			let codes = output.querySelectorAll('pre>code');
-			codes.forEach((c,n) => {
-				c.id = "code_" + n;
+					let pr = c.parentElement;
+					let pd = mekDiv(c.className.replaceAll('language-',''),'code_label');
+					let btnht = mekButton({caption: 'copy code',btype: 'outline',icon: 'fa-copy',_class: 'sm slide-up',_props: `data-copythis="#${c.id}"`});
+					let conht = mekDiv(pd + btnht, 'spacy-tn w3-display-bottomright w3-bottom flowline spread panelbg modetxt');
 
-				let pr = c.parentElement;
-				let pd = mekDiv(c.className.replaceAll('language-',''),'code_label');
-				let btnht = mekButton({caption: 'copy code',btype: 'outline',icon: 'fa-copy',_class: 'sm slide-up',_props: `data-copythis="#${c.id}"`});
-				let conht = mekDiv(pd + btnht, 'spacy-tn w3-display-bottomright w3-bottom flowline spread panelbg modetxt');
+					pr.innerHTML = pr.innerHTML + conht;
+				});
 
-				pr.innerHTML = pr.innerHTML + conht;
-			});
+				let anchors = output.querySelectorAll('a');
+				anchors.forEach(a => {
+					a.target = 'blank';
+				})
+				refreshUI(300);
+			}
+			window['switchmytab'] = (el) => {
+				// return;
+				let tabs = document.querySelectorAll('.pagepart');
+				let btns = document.querySelectorAll('.tabbtn');
+				let n = Number(el.dataset.myid);
+				let hydclass = 'w3-hide-small';
 
-			refreshUI(300);
-		}
+				tabs.forEach(t => {
+					t.classList.add(hydclass);
+				});
 
-		window['switchmytab'] = (el) => {
-			// return;
-			let tabs = document.querySelectorAll('.pagepart');
-			let btns = document.querySelectorAll('.tabbtn');
-			let n = Number(el.dataset.myid);
-			let hydclass = 'w3-hide-small';
+				// return;
 
-			tabs.forEach(t => {
-				t.classList.add(hydclass);
-			});
+				btns.forEach(t => {
+					t.classList.remove('active');
+				});
 
-			// return;
-
-			btns.forEach(t => {
-				t.classList.remove('active');
-			});
-
-			tabs[n].classList.remove(hydclass);
-			btns[n].classList.add('active');
-		}
+				tabs[n].classList.remove(hydclass);
+				btns[n].classList.add('active');
+			}
 
 		// initialisers
 			window['initstuff'] = () => {
 				savedStuff = getsaved();
+				_startup();
+			}
+			window['_restart_autosaver'] = () => {
+				alert_silent('restarting autosaver');
+				clearTimeout(autosave_inter);
+
+				autosave_inter = setTimeout(() => {
+					run_autosave();
+				}, autosave_intervals);
+			}
+
+		// autosave algo
+			function run_autosave() {
+				if(!autosave_enabled){
+					return;
+				} else {
+					_restart_autosaver();
+				}
+
+				// alert_info('saving');
+				// return;
+
+				let v = input.value;
+
+				if(v == '' && cur_project == undefined){
+					// alert_warning('nothing to save');
+					return;
+				}
+
+				let outdata = {
+					text: v,
+				}
+				m_autosave.setData(outdata);
+
+				// alert_danger('here yet?');
+				alert_success('draft saved');
+				// _restart_autosaver();
+			}
+			function toggle_autosave() {
+				autosave_enabled = !autosave_enabled;
+
+				if(!autosave_enabled){
+					clearTimeout(autosave_inter);
+				} else {
+					_restart_autosaver();
+				}
 			}
 
 		// download options
 			window['downloadHTML'] = (el) => {
 				alert_info('downloading your text');
-
 				let mdata = output.innerHTML;
 
 				if(inputEmpty()){
@@ -276,36 +349,59 @@
 			}
 
 		// save options
-			window['saveToStorage'] = (el) => {
-				if(inputEmpty()){
+			window['saveCurrentWirk'] = (el) => {
+				if(inputEmpty() && cur_project == undefined){
 					alert_danger('cant save an empty text');
 					return;
 				}
 
 				let now = new Date();
 				let tosave = {
-					date_added : now.toLocaleString(),
 					data: input.value,
 				}
+				is_saved = !(cur_project == undefined);
 
 				if(is_saved){
 					alert_info('updating item');
-					cur_item = {
-						...cur_item,
-						date_modified: now.toLocaleString(),
+
+					cur_project = {
+						...cur_project,
 						data: input.value,
+						updated_at: now.toISOString(),
 					};
-					updateone();
+					m_saved_stuff.update(cur_project);
+					after_fx(rec);
 				} else {
+					tosave.created_at = now.toISOString();
 					alert_info('adding to saved');
 
-					awaitprompt('Save the document as...',savenew);
+					// awaitprompt('Save the document as...',savenew);
+					let inputs = [
+						{
+							typ: 'text',
+							field: 'project_name',
+							label: 'document name',
+							required: true,
+						}
+					];
+					get_input('Save the document as...',inputs,savenew);
 				}
 
 				function savenew(n){
-					alert_info(`saving: ${n}`);
-					tosave.title = n;
-					saveToLocal(tosave,is_saved);
+					alert_info(`saving: ${n.project_name}`);
+					// return;
+					tosave.title = n.project_name;
+					console.log('saving as', tosave);
+
+					let rec = m_saved_stuff.add_one(tosave);
+					after_fx(rec);
+					// saveToLocal(tosave,is_saved);
+				}
+
+				function after_fx(r) {
+					cur_project = r;
+					m_cur_project.setData(r);
+					renderProjectInfo();
 				}
 
 				function updateone() {
@@ -342,6 +438,39 @@
 				localStorage.setItem(pref_saved,JSON.stringify(savedStuff));
 				let tt = localStorage.getItem(pref_saved);
 				return JSON.parse(tt);
+			}
+
+		// drop options
+			window['start_over'] = () => {
+				// this clears the draft save and the current project
+				const doit = () => {
+					m_autosave.delete();
+					m_cur_project.delete();
+					window.location.reload();
+				}
+
+				confirmAction('Start Over?', 'this will clear all drafts and will forget the current project<br>Are you sure?',() => {doit()})
+			}
+			window['view_saved'] = () => {
+				let outht = '';
+				let stuff = m_saved_stuff.data == undefined ? [] : m_saved_stuff.data;
+
+				if(m_saved_stuff.data.length == 0){
+					outht = mekStandin(
+							mekDiv('no items saved yet' + 
+							mekButton({caption: 'add new',icon: 'fa fa-plus',_props: 'data-runme="saveCurrentWirk"',btype: 'primary'}))
+						);
+				}
+
+				mekModal(
+					{
+						title: 'Saved documents',
+						sub: 'here are the saved documents',
+						size: 'md',
+						has_continue: false,
+						content: outht,
+					}
+				);
 			}
 
 		// utilities
@@ -389,5 +518,375 @@
 			}
 
 		callOnLoad.push({act: initstuff});
+	</script>
+
+	<script>
+		let pref_draft = `${app_prefix}last_draft`;
+		let pref_project = `${app_prefix}cur_project`;
+
+		let draft = undefined;
+		let cur_project = undefined;
+
+		class _savehelper {
+			// utilities can be called from anywhere
+				static family = new Set();
+				static updateAll(){
+					let fam = _savehelper.family;
+					/*
+					for(const item in fam){
+						// loop style 1
+					}
+					// */
+
+					fam.forEach((f,id) => {
+						f.refreshData();
+					})
+				}
+				static getItem(pref,preparse=false){
+					let d = localStorage.getItem(pref);
+					return _sh.preparse_items(d,preparse);
+				}
+				static getItem_Flash(pref, preparse){
+					let d = sessionStorage.getItem(pref);
+					return _sh.preparse_items(d,preparse);
+				}
+				static preparse_items(d,doit = false){
+					if(!doit){
+						return d;
+					}
+
+					try{
+						d = JSON.parse(d);
+					} catch(err) {
+						console.error(err);
+						return undefined;
+					}
+
+					return d;
+				}
+				static pre_process(wot){
+					if(typeof wot == 'string'){
+						return wot;
+					}
+
+					let outp = null;
+
+					try{
+						outp = JSON.stringify(wot);
+					} catch(err) {
+						console.error(err);
+						return null;
+					}
+
+					return outp;
+				}
+				static setItem(pref,con = undefined, preparse = false){
+					let tosave = _sh.pre_process(con);
+					localStorage.setItem(pref, tosave);
+					return _sh.getItem(pref);
+				}
+				static setItem_Flash(pref,con = undefined, preparse = false){
+					let tosave = _sh.pre_process(con);
+					sessionStorage.setItem(pref, tosave);
+					return _sh.getItem_Flash(pref);
+				}
+
+			// identity data
+				serial = '--xx--';
+				name = 'no name';
+				born_at = undefined;
+				config = undefined;
+				defaultConfig = {
+					primaryKey: 'recid',
+					engine: 'localStorage',		// where the data will be saved
+					use_prefix: true,			// if it should add the app_prefix or not
+					pref: 'default_pref',		// the storage key
+					multiple: true,			// for things with more than one record
+					autoload: true,				// should it get the data automatically when loaded
+				};
+				data = undefined;
+
+			// runtime data
+				said = [];
+				mylogs = [];
+
+			// main methods
+				constructor(config = {}) {
+					_savehelper.family.add(this);
+					let dft = this.defaultConfig;
+					let cfg = {...dft, ...config};
+
+					// do some post processing on the data
+					if(config != undefined){
+						if(typeof config.pref == 'string' && cfg.use_prefix){
+							cfg.pref = `${app_prefix}${cfg.pref}`;
+						}
+					}
+
+					this.serial = mekRandomString(7);
+					this.born_at = new Date();
+					this.name = cfg.name;
+					this.is_multiple = cfg.multiple;
+
+					this.config = cfg;
+
+					if(cfg.autoload){
+						this.getData();
+					}
+				}
+
+				say = (wot, inform = false) => {
+					this.said.push({words: wot, when: (new Date()).toISOString()});
+
+					if(inform){
+						alert_info(`[${this.name}] ${wot}`,8);
+					}
+				}
+				logme = (wot) => {
+					let n = {
+						created_at: (new Date()).toISOString(),
+						content: wot,
+					};
+
+					mylogs.push(n);
+				}
+				refreshData = () => {
+					say('refreshing data',1==1);
+					this.getData();
+				}
+
+			// data ops
+				getData = () => {
+					let cfg = this.config;
+					let data = undefined;
+
+					if(cfg.engine.toLowerCase() == 'localstorage'){
+						data = _sh.getItem(cfg.pref,true);
+					} else {
+						data = _sh.getItem_Flash(cfg.pref,true)
+					}
+
+					this.data = data;
+					return this;
+				}
+				setData = (dta) => {
+					let cfg = this.config;
+					let data = this.data;
+					let nowstring = (new Date()).toISOString();
+
+					this.say('starting save process');
+					// console.log(`saving ${cfg.name}`,cfg);
+
+					if(!cfg.multiple){
+						// assumes you passed an object
+						// let dft = {};
+
+						if(data == undefined){
+							dta.created_at = nowstring;
+						}
+
+						dta.updated_at = nowstring;
+					}
+
+					this.data = dta;
+					this.say('saving data');
+					this.saveDataRaw();
+
+					return this;
+				}
+				saveDataRaw = () => {
+					let cfg = this.config;
+					let data = this.data;
+					data = data == undefined ? null : data;
+
+					// console.log(`saving raw ${cfg.name}`,cfg);
+
+					if(cfg.engine.toLowerCase() == 'localstorage'){
+						this.say('saving to local');
+						_sh.setItem(cfg.pref,data);
+					} else {
+						this.say('saving to session');
+						_sh.setItem_Flash(cfg.pref,data);
+					}
+				}
+
+				find_my_id = (rec) => {
+					let recid = undefined;
+					let primaryKey = this.config.primaryKey;
+					let keyval = typeof rec == 'string' ? rec : rec[primaryKey];
+
+					data.forEach((d,id) => {
+						if(d[primaryKey] == keyval){
+							recid = id;
+						}
+					});
+
+					return recid;
+				}
+
+				add_one = (rec) => {
+					let cfg = this.config;
+					let data = this.data;
+					let nowstring = (new Date()).toISOString();
+
+					if(!(cfg.multiple)){
+						this.say('you can only add to an item with multiple entries',true);
+						return;
+					}
+
+					rec[cfg.primaryKey] = mekRandomString(12);
+					rec.created_at = nowstring;
+					rec.updated_at = nowstring;
+
+					if(data == undefined){
+						data = [];
+					}
+
+					data.push(rec);
+
+					this.data = data;
+					this.saveDataRaw();
+
+					return rec;
+				}
+
+				update = (rec) => {
+					let cfg = this.config;
+					let data = this.data;
+					let nowstring = (new Date()).toISOString();
+					rec.updated_at = nowstring;
+
+					if(!cfg.multiple){
+						data = rec;
+					} else {
+						let recid = this.find_my_id(rec);
+
+						if(recid == undefined){
+							this.say('invalid record id', true);
+						} else {
+							data[recid] = rec;
+						}
+					}
+
+					this.data = data;
+					this.saveDataRaw();
+
+					return rec;
+				}
+				delete = (keyval) => {
+					let cfg = this.config;
+					let data = this.data;
+					let nowstring = (new Date()).toISOString();
+
+					if(!cfg.multiple){
+						// rec.updated_at = nowstring;
+						data = null;
+					} else {
+						let recid = this.find_my_id(keyval);
+
+						if(recid == undefined){
+							this.say('invalid record id', true);
+						} else {
+							// data[recid] = rec;
+							data = [...data].toSpliced(recid,1);
+						}
+					}
+
+					this.data = data;
+					this.saveDataRaw();
+				}
+		}
+		class _sh extends _savehelper{
+			constructor(cfg){
+				cfg.source = "shortener";
+				super(cfg);
+			}
+		}
+
+		// data models
+		let m_saved_stuff = new _sh({
+			name: 'saved_projects',
+			pref: 'saved_markdown_projects',
+		});
+		let m_cur_project = new _savehelper({
+			name: 'current project',
+			use_prefix: false,
+			pref: pref_project,
+			multiple: false,
+		});
+		let m_autosave = new _sh({
+			name: 'autosave',
+			pref: pref_draft,
+			use_prefix: false,
+			multiple: false,
+		});
+
+		function _startup(argument) {
+			let d_draft = undefined;
+			let d_project = undefined;
+
+			// check for autosave
+			const check_draft = () => {
+				d_draft = m_autosave.getData().data;
+
+				if(d_draft != undefined){
+					alert_info('nope');
+					let msg = "we found a draft, do you want to continue with it";
+					confirmAction('Draft found',msg,load_draft);
+				} else {
+					alert_info('no draft found');
+					_restart_autosaver();
+				}
+			};
+			const load_draft = () => {
+				alert_info('loading draft');
+				draft = d_draft;
+
+				input.value = draft.text;
+				renderStuff();
+				_restart_autosaver();
+			};
+
+			// check for current project
+			const check_project = () => {
+				alert_info('checking project');
+				d_project = m_cur_project.getData().data;
+				console.log('project data',d_project);
+
+				if(d_project == undefined){
+					alert_dark('project not found');
+				} else {
+					alert_dark('project found');
+					cur_project = d_project;
+				}
+
+				renderProjectInfo();
+			}
+
+			check_draft();
+			check_project();
+		}
+
+		function renderProjectInfo() {
+			let ui_projects = document.querySelectorAll('[data-role="project-card"]');
+			let proj = cur_project;
+
+			ui_projects.forEach((ui,n) => {
+				let inner = ui.querySelector('[data-subrole="inner"]');
+				let contents = '';
+				inner = inner == undefined ? ui : inner;
+
+				if(proj == undefined){
+					contents = mekDiv(mekTag('i','no document selected'),'text-muted');
+				} else {
+					contents = `
+						${mekDiv(proj.title,'text-bold')}
+						${mekTag('small',proj.recid,'text-muted')}
+					`;
+				}
+
+				inner.innerHTML = mekDiv(contents,"flow");
+			})
+		}
 	</script>
 </body>
