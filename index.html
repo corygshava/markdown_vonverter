@@ -44,6 +44,16 @@
 		.project-chip{
 			position: relative;
 		}
+		.project_card {
+		    padding: 8px 16px;
+		    margin: 8px 0;
+		    border: 1px solid var(--clr-border);
+		    border-radius: var(--roundness);
+		    cursor: pointer;
+		}
+		.project_card:hover {
+		    border: 1px solid var(--themecolor);
+		}
 	</style>
 </head>
 <body class="flow_body" data-mode="dark">
@@ -100,7 +110,7 @@
 						<i class="fa fa-file"></i>
 						start over
 					</button>
-					<button class="dropdown-item" data-runme="downloadMd">
+					<button class="dropdown-item" data-runme="export_project">
 						<i class="fa fa-download"></i>
 						export
 					</button>
@@ -200,10 +210,10 @@
 
 					let pr = c.parentElement;
 					let pd = mekDiv(c.className.replaceAll('language-',''),'code_label');
-					let btnht = mekButton({caption: 'copy code',btype: 'outline',icon: 'fa-copy',_class: 'sm slide-up',_props: `data-copythis="#${c.id}"`});
-					let conht = mekDiv(pd + btnht, 'spacy-tn w3-display-bottomright w3-bottom flowline spread panelbg modetxt');
+					let btnht = mekButton({caption: 'copy code', btype: 'outline', icon: 'fa-copy', _class: 'sm slide-up', _props: `data-copythis="#${c.id}"`});
+					let conht = mekDiv(pd + btnht, 'spacy-tn flowline spread panelbg modetxt code_opts');
 
-					pr.innerHTML = pr.innerHTML + conht;
+					pr.innerHTML = conht + pr.innerHTML;
 				});
 
 				let anchors = output.querySelectorAll('a');
@@ -285,6 +295,43 @@
 			}
 
 		// download options
+			window['export_project'] = (el) => {
+				let outht = '';
+				let cms = {
+					"btype": "outline",
+					_class: "sm_"
+				}
+
+				outht += mekButton({
+					...cms,
+					"caption": "download HTML",
+					_props: 'data-runme="downloadHTML"',
+				});
+
+				outht += mekButton({
+					...cms,
+					"caption": "download Markdown",
+					_props: 'data-runme="downloadMd"',
+				});
+
+				outht += mekButton({
+					...cms,
+					"caption": "download Text",
+					_props: 'data-runme="downloadText"',
+				});
+
+				outht = mekDiv(outht, 'flowline overflow gap-sm left');
+
+				mekModal(
+					{
+						title: 'Saved documents',
+						sub: 'here are the saved documents',
+						size: 'md',
+						has_continue: false,
+						content: outht,
+					}
+				);
+			}
 			window['downloadHTML'] = (el) => {
 				alert_info('downloading your text');
 				let mdata = output.innerHTML;
@@ -455,12 +502,24 @@
 				let outht = '';
 				let stuff = m_saved_stuff.data == undefined ? [] : m_saved_stuff.data;
 
-				if(m_saved_stuff.data.length == 0){
+				if(stuff == 0){
 					outht = mekStandin(
 							mekDiv('no items saved yet' + 
 							mekButton({caption: 'add new',icon: 'fa fa-plus',_props: 'data-runme="saveCurrentWirk"',btype: 'primary'}))
 						);
 				}
+
+				stuff.forEach(s => {
+					outht += `
+						<div class="project_card" data-runme="pick_project" data-recid="${s.recid}" data-dismiss="modal">
+							<div class="details"><b>${s.title}</b></div>
+							<div class="metadata flowline gap-sm left" style="opacity: 0.6; font-size: 0.7rem">
+								<span>added: ${mekTag('small',formatDate0(s.created_at),'text-muted')}</span>
+								<span>updated: ${mekTag('small',formatDate0(s.updated_at),'text-muted')}</span>
+							</div>
+						</div>
+					`;
+				})
 
 				mekModal(
 					{
@@ -471,6 +530,19 @@
 						content: outht,
 					}
 				);
+			}
+			window['pick_project'] = (el) => {
+				let mine = m_saved_stuff.find(el.dataset.recid);
+				console.log('data', mine);
+
+				m_cur_project.setData(mine);
+				m_autosave.delete();
+				cur_project = mine;
+				renderProjectInfo();
+
+				input.value = mine.data;
+				renderStuff();
+				_restart_autosaver();
 			}
 
 		// utilities
@@ -538,17 +610,17 @@
 					}
 					// */
 
-					fam.forEach((f,id) => {
+					fam.forEach((f,v,all) => {
 						f.refreshData();
 					})
 				}
 				static getItem(pref,preparse=false){
 					let d = localStorage.getItem(pref);
-					return _sh.preparse_items(d,preparse);
+					return _savehelper.preparse_items(d,preparse);
 				}
 				static getItem_Flash(pref, preparse){
 					let d = sessionStorage.getItem(pref);
-					return _sh.preparse_items(d,preparse);
+					return _savehelper.preparse_items(d,preparse);
 				}
 				static preparse_items(d,doit = false){
 					if(!doit){
@@ -583,12 +655,12 @@
 				static setItem(pref,con = undefined, preparse = false){
 					let tosave = _sh.pre_process(con);
 					localStorage.setItem(pref, tosave);
-					return _sh.getItem(pref);
+					return _savehelper.getItem(pref);
 				}
 				static setItem_Flash(pref,con = undefined, preparse = false){
 					let tosave = _sh.pre_process(con);
 					sessionStorage.setItem(pref, tosave);
-					return _sh.getItem_Flash(pref);
+					return _savehelper.getItem_Flash(pref);
 				}
 
 			// identity data
@@ -648,10 +720,10 @@
 						content: wot,
 					};
 
-					mylogs.push(n);
+					this.mylogs.push(n);
 				}
 				refreshData = () => {
-					say('refreshing data',1==1);
+					this.say('refreshing data',1==1);
 					this.getData();
 				}
 
@@ -711,6 +783,7 @@
 				}
 
 				find_my_id = (rec) => {
+					let data = this.data || [];
 					let recid = undefined;
 					let primaryKey = this.config.primaryKey;
 					let keyval = typeof rec == 'string' ? rec : rec[primaryKey];
@@ -722,6 +795,23 @@
 					});
 
 					return recid;
+				}
+				find = (val) => {
+					let data = this.data || [];
+					let primaryKey = this.config.primaryKey;
+					let found = undefined;
+
+					// console.log('all data',data)
+
+					data.forEach((d,id) => {
+						let v = d[primaryKey];
+						// console.log(`this: ${v}, wanted: ${val}`);
+						if(d[primaryKey] == val){
+							found = d;
+						}
+					});
+
+					return found;
 				}
 
 				add_one = (rec) => {
@@ -886,7 +976,12 @@
 				}
 
 				inner.innerHTML = mekDiv(contents,"flow");
-			})
+			});
+
+			if(proj != undefined){
+				input.value = proj.data;
+				renderStuff();
+			}
 		}
 	</script>
 </body>

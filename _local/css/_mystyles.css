@@ -191,11 +191,13 @@
 	}
 	.pagepart.outputarea #output pre{
 		--max: 400px;
+		--s_max: calc(400px - 64px);
 		max-height: var(--max);
 		overflow: hidden;
-		position: relative;
+		padding: 0 !important;
+		background: transparent !important;
+		/*position: relative;*/
 		/*padding: 12px 12px 50px 12px;*/
-		padding: 12px;
 	}
 	.pagepart.outputarea #output pre button{
 		/*display: none;*/
@@ -207,10 +209,16 @@
 	}
 	.pagepart.outputarea #output pre code{
 		display: inline-block;
-		max-height: var(--max);
+		max-height: var(--s_max);
 		max-width: 100%;
+		width: 100%;
 		overflow: auto;
 		margin-bottom: 40px !important;
+		background: var(--md-bg);
+		border: 1px solid var(--clr-border);
+		padding: 12px;
+		border-radius: 0 !important;
+		/* font-family: monospace !important; */
 	}
 	.pagepart.outputarea #output pre code::before {
 		/*content: attr(class);*/
@@ -232,4 +240,9 @@
 		display: inline-flex;
 		justify-content: center;
 		align-items: center;
+	}
+	.pagepart .code_opts {
+		border: 1px solid var(--clr-border);
+		border-radius: var(--roundness) var(--roundness) 0 0;
+		border-bottom: none;
 	}
